@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+    db:
+        image: postgres:14.1-alpine
+        container_name: ${DB_HOST}
+        restart: always
+        environment:
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+#        ports:
+#            - ${DB_PORT}:${DB_PORT}                                #To access database no from API(for example DataGrip)
+        volumes:
+            - db:/var/lib/postgresql/data
+        command: -p ${DB_PORT}
+    api:
+        build:
+            context: ./
+            target: production
+        depends_on:
+            - db
+        ports:
+            - ${SERVER_PORT}:${SERVER_PORT}
+        env_file:
+            - .env
+        links:
+            - db
+        volumes:
+            - './:/src'
+volumes:
+    db:
+        driver: local
