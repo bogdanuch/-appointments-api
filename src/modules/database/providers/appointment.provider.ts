@@ -15,7 +15,7 @@ export class AppointmentProvider {
   public async getStats(email: string, minimumDate: Date, maximumDate: Date) {
     if (new Date(minimumDate) > new Date(maximumDate))
       throw new BadRequestException('Maximum is bigger then minimum');
-
+    /** Find appointments according to the input data */
     const appointments = await this.findAppointments({
       where: {
         email,
@@ -34,17 +34,21 @@ export class AppointmentProvider {
       },
     });
     const stats: { [key: string]: number } = {};
+    /** Create statistic */
     appointments.forEach((appointment) => {
-      const appointmentStartDay = dateTransformer(
-        appointment.appointmentStartDate,
+      /** Remove time from start and end dates */
+      const appointmentStartObject = new Date(
+        dateTransformer(appointment.appointmentStartDate),
       );
-      const appointmentEndDay = dateTransformer(appointment.appointmentEndDate);
-      const appointmentStartObject = new Date(appointmentStartDay);
-      const appointmentEndObject = new Date(appointmentEndDay);
+      const appointmentEndObject = new Date(
+        dateTransformer(appointment.appointmentEndDate),
+      );
+      /** Go through each day of the appointment that is less than maximumDate */
       while (
         appointmentStartObject <= appointmentEndObject &&
         appointmentStartObject <= maximumDate
       ) {
+        /** Add day to statistic if current iteration day more or equal then minimumDate */
         if (appointmentStartObject >= minimumDate) {
           const iterationStartString = dateTransformer(appointmentStartObject);
           if (!stats[iterationStartString]) {
@@ -53,6 +57,7 @@ export class AppointmentProvider {
             stats[iterationStartString]++;
           }
         }
+        /** Go to the next day of appointment */
         appointmentStartObject.setDate(appointmentStartObject.getDate() + 1);
       }
     });
@@ -62,7 +67,9 @@ export class AppointmentProvider {
   public async deleteAppointment(appointmentId: number, userEmail: string) {
     let destroyedAmount: number;
     try {
+      /** Check if appointment belongs to user */
       await this.isUsersAppointment(appointmentId, userEmail);
+
       destroyedAmount = await Appointment.destroy({
         where: { id: appointmentId },
       });
@@ -71,11 +78,12 @@ export class AppointmentProvider {
         'Unable to destroy appointment with such id',
       );
     }
-
     return !!destroyedAmount;
   }
   public async updateAppointment(appointmentData: IAppointment) {
+    /** Check if appointment belongs to user */
     await this.isUsersAppointment(appointmentData.id, appointmentData.email);
+
     return Appointment.update(appointmentData, {
       where: { id: appointmentData.id },
     });

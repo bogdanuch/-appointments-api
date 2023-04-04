@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'process';
 
+/** Service to implement second jwt secret */
 @Injectable()
 export class JwtRefreshService extends JwtService {
   constructor() {

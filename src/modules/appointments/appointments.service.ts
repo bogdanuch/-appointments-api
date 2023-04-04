@@ -8,7 +8,7 @@ export class AppointmentsService {
   constructor(private readonly appointmentProvider: AppointmentProvider) {}
   private readonly logger = new Logger(AppointmentsService.name);
 
-  //Cron to remove expired appointments every week
+  /** Use cron to remove expired appointments every week */
   @Cron(CronExpression.EVERY_WEEK)
   async handleCron() {
     this.logger.log('Clearing all expired tasks');
