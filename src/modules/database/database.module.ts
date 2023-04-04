@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { Appointment } from './models/appointment.model';
 import { User } from './models/user.model';
+import { UserProvider } from './providers/user.provider';
+import { AppointmentProvider } from './providers/appointment.provider';
 @Module({
   imports: [
     SequelizeModule.forRootAsync({
@@ -16,7 +18,7 @@ import { User } from './models/user.model';
       }),
     }),
   ],
-  providers: [],
-  exports: [],
+  providers: [UserProvider, AppointmentProvider],
+  exports: [UserProvider, AppointmentProvider],
 })
 export class DataBaseModule {}
